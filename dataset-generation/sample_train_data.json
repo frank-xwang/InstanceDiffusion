@@ -1,0 +1,22 @@
+[
+    {
+        "image": "/data/home/xudongw/Grounded-Segment-Anything/test-data/images/flower_beach.jpg",
+        "caption": ""
+    },
+    {
+        "image": "/data/home/xudongw/Grounded-Segment-Anything/test-data/images/red_bird.jpg",
+        "caption": ""
+    },
+    {
+        "image": "/data/home/xudongw/Grounded-Segment-Anything/test-data/images/style_cloudpurple.png",
+        "caption": ""
+    },
+    {
+        "image": "/data/home/xudongw/Grounded-Segment-Anything/test-data/images/style_gold.png",
+        "caption": ""
+    },
+    {
+        "image": "/data/home/xudongw/Grounded-Segment-Anything/test-data/images/teddy.jpg",
+        "caption": ""
+    }
+]

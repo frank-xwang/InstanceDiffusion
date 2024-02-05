@@ -1,0 +1,75 @@
+diffusion:
+  target: ldm.models.diffusion.ldm.LatentDiffusion
+  params:
+    linear_start: 0.00085
+    linear_end: 0.012
+    timesteps: 1000
+   
+model:
+  target: ldm.modules.diffusionmodules.openaimodel.UNetModel
+  params:
+    image_size: 64
+    in_channels: 4
+    out_channels: 4
+    model_channels: 320
+    attention_resolutions: [ 4, 2, 1 ]
+    num_res_blocks: 2
+    channel_mult: [ 1, 2, 4, 4 ]
+    num_heads: 8
+    transformer_depth: 1
+    context_dim: 768
+    fuser_type: gatedSA
+    use_checkpoint: True
+    sd_v1_5: True # the performance difference between using sd1.5 and sd1.4 is very small
+
+    grounding_tokenizer:
+      target: ldm.modules.diffusionmodules.text_grounding_net.UniFusion
+      params:
+        in_dim: 768
+        out_dim: 768
+        mid_dim: 3072
+        train_add_boxes: True
+        train_add_points: True 
+        train_add_scribbles: True
+        train_add_masks: True
+        test_drop_boxes: False
+        test_drop_points: False
+        test_drop_scribbles: True
+        test_drop_masks: False
+        use_seperate_tokenizer: True
+
+autoencoder:
+  target: ldm.models.autoencoder.AutoencoderKL
+  params:
+    scale_factor: 0.18215 
+    embed_dim: 4
+    ddconfig:
+      double_z: true
+      z_channels: 4
+      resolution: 256
+      in_channels: 3
+      out_ch: 3
+      ch: 128
+      ch_mult:
+      - 1
+      - 2
+      - 4
+      - 4
+      num_res_blocks: 2
+      attn_resolutions: []
+      dropout: 0.0
+
+text_encoder:
+  target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
+
+train_dataset_names: 
+  Grounding:
+    which_layer_text: before
+    image_size: 512
+    max_boxes_per_data: 30
+    prob_use_caption: 1.0
+    random_crop: False
+    random_flip: True
+
+grounding_tokenizer_input:
+  target: grounding_input.text_grounding_tokinzer_input.GroundingNetInput
