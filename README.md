@@ -1,6 +1,7 @@
 # InstanceDiffusion: Instance-level Control for Image Generation
 
-We introduce **InstanceDiffusion** that adds precise instance-level control to text-to-image diffusion models. InstanceDiffusion supports free-form language conditions per instance and allows flexible ways to specify instance locations such as simple **single points**, **scribbles**, **bounding boxes** or intricate **instance segmentation masks**, and combinations thereof.
+We introduce **InstanceDiffusion** that adds precise instance-level control to text-to-image diffusion models. InstanceDiffusion supports free-form language conditions per instance and allows flexible ways to specify instance locations such as simple **single points**, **scribbles**, **bounding boxes** or intricate **instance segmentation masks**, and combinations thereof. 
+Compared to the previous SOTA, InstanceDiffusion achieves **2.0 times** higher AP50 for box inputs and **1.7 times** higher IoU for mask inputs.
 
 <p align="center"> <img src='docs/teaser.jpg' align="center" > </p>
 
@@ -8,9 +9,9 @@ We introduce **InstanceDiffusion** that adds precise instance-level control to t
 > [Xudong Wang](https://people.eecs.berkeley.edu/~xdwang/), [Trevor Darrell](https://people.eecs.berkeley.edu/~trevor/), [Saketh Rambhatla](https://rssaketh.github.io/), 
 [Rohit Girdhar](https://rohitgirdhar.github.io/), [Ishan Misra](https://imisra.github.io/)     
 > GenAI, Meta; BAIR, UC Berkeley            
-> Tech Report            
+> Preprint             
 
-[[`project page`](http://people.eecs.berkeley.edu/~xdwang/projects/InstDiff/)] [[`arxiv`](https://arxiv.org/abs/xxxx.xxxxx)] [[`bibtex`](#citation)]             
+[[`project page`](http://people.eecs.berkeley.edu/~xdwang/projects/InstDiff/)] [[`arxiv`](https://arxiv.org/abs/2402.03290)] [[`PDF`](https://arxiv.org/pdf/2402.03290.pdf)] [[`bibtex`](#citation)]             
 
 
 ## Disclaimer
@@ -174,10 +175,12 @@ If you have any general questions, feel free to email us at [XuDong Wang](mailto
 If you find our work inspiring or use our codebase in your research, please consider giving a star ⭐ and a citation.
 
 ```
-@article{wang2024instancediffusion,
-  title={InstanceDiffusion: Instance-level Control for Image Generation},
-  author={Wang, Xudong and Darrell, Trevor and Rambhatla, Saketh and Girdhar, Rohit and Misra, Ishan},
-  journal={arXiv preprint arXiv:xxxx.xxxxx},
-  year={2024}
+@misc{wang2024instancediffusion,
+      title={InstanceDiffusion: Instance-level Control for Image Generation}, 
+      author={Xudong Wang and Trevor Darrell and Sai Saketh Rambhatla and Rohit Girdhar and Ishan Misra},
+      year={2024},
+      eprint={2402.03290},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
 }
 ```
