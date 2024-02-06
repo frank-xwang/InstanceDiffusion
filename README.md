@@ -10,7 +10,7 @@ We introduce **InstanceDiffusion** that adds precise instance-level control to t
 > GenAI, Meta; BAIR, UC Berkeley            
 > Tech Report            
 
-[[`project page`](http://people.eecs.berkeley.edu/~xdwang/projects/InstDiff/)] [[`arxiv`](https://arxiv.org/abs/xxxx.xxxxx)] [[`bibtex`](#citation)]             
+[[`project page`](http://people.eecs.berkeley.edu/~xdwang/projects/InstDiff/)] [[`arxiv`](https://arxiv.org/abs/2402.03290)] [[`PDF`](https://arxiv.org/pdf/2402.03290.pdf)] [[`bibtex`](#citation)]             
 
 
 ## Disclaimer
@@ -174,10 +174,12 @@ If you have any general questions, feel free to email us at [XuDong Wang](mailto
 If you find our work inspiring or use our codebase in your research, please consider giving a star ⭐ and a citation.
 
 ```
-@article{wang2024instancediffusion,
-  title={InstanceDiffusion: Instance-level Control for Image Generation},
-  author={Wang, Xudong and Darrell, Trevor and Rambhatla, Saketh and Girdhar, Rohit and Misra, Ishan},
-  journal={arXiv preprint arXiv:xxxx.xxxxx},
-  year={2024}
+@misc{wang2024instancediffusion,
+      title={InstanceDiffusion: Instance-level Control for Image Generation}, 
+      author={Xudong Wang and Trevor Darrell and Sai Saketh Rambhatla and Rohit Girdhar and Ishan Misra},
+      year={2024},
+      eprint={2402.03290},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
 }
 ```
