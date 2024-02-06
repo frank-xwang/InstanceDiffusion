@@ -1,6 +1,6 @@
 # InstanceDiffusion: Instance-level Control for Image Generation
 
-We introduce **InstanceDiffusion** that adds precise instance-level control to text-to-image diffusion models. InstanceDiffusion supports free-form language conditions per instance and allows flexible ways to specify instance locations such as simple **single points**, **scribbles**, **bounding boxes** or intricate **instance segmentation masks**, and combinations thereof.
+We introduce **InstanceDiffusion** that adds precise instance-level control to text-to-image diffusion models. InstanceDiffusion supports free-form language conditions per instance and allows flexible ways to specify instance locations such as simple **single points**, **scribbles**, **bounding boxes** or intricate **instance segmentation masks**, and combinations thereof. We outperform previous state-of-the-art by 20.4% AP50 for box inputs, and 25.4% IoU for mask inputs.
 
 <p align="center"> <img src='docs/teaser.jpg' align="center" > </p>
 
