@@ -47,6 +47,10 @@ See [Preparing Datasets for InstanceDiffusion](dataset-generation/README.md).
   <img src="docs/InstDiff-gif.gif" width=70%>
 </p>
 
+<p align="center">
+  <img src="docs/results.png" width=100%>
+</p>
+
 InstanceDiffusion enhances text-to-image models by providing additional instance-level control. In additon to a global text prompt, InstanceDiffusion allows for paired instance-level prompts and their locations (e.g. points, boxes, scribbles or instance masks) to be specified when generating images. 
 We add our proposed learnable UniFusion blocks to handle the additional per-instance conditioning. UniFusion fuses the instance conditioning with the backbone and modulate its features to enable instance conditioned image generation. Additionally, we propose ScaleU blocks that improve the UNet’s ability to respect instance-conditioning by rescaling the skip-connection and backbone feature maps produced in the UNet. At inference, we propose Multi-instance Sampler which reduces information leakage across multiple instances.
 
@@ -75,6 +79,26 @@ The SDXL refiner is activated if the `cascade_strength` is larger than 0. Note: 
 Adjusting `alpha` modifies the fraction of timesteps using instance-level conditions, where a higher `alpha` ensures better adherence to location conditions at the potential cost of image quality, there is a trade-off.
 
 The bounding box should follow the format [xmin, ymin, width, height]. The mask is expected in RLE (Run-Length Encoding) format. Scribbles should be specified as [[x1, y1],..., [x20, y20]], and a point is denoted by [x, y].
+
+
+
+### Let's Get Everybody Turning Heads!
+InstanceDiffusion supports image compositions with granularity spanning from entire instances to parts and subparts. The positioning of parts/subparts can implicitly alter the overall pose of the object.
+
+
+```
+python inference.py \
+  --num_images 8 \
+  --output OUTPUT/ \
+  --input_json demos/eagle_left.json \
+  --ckpt pretrained/instancediffusion_sd15.pth \
+  --test_config configs/test_box.yaml \
+  --guidance_scale 5 \
+  --alpha 0.8 \
+  --seed 0 \
+  --mis 0.2 \
+  --cascade_strength 0.3 \
+```
 
 
 ### Image Generation Using Single Points
@@ -123,9 +147,6 @@ python inference.py \
 ## Model Evaluation
 ### Location Conditions (point, scribble, box and instance mask)
 coming soon
-<p align="center">
-  <img src="docs/results.png" width=100%>
-</p>
 
 ### Attribute Binding
 coming soon
