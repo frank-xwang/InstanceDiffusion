@@ -85,6 +85,7 @@ The bounding box should follow the format [xmin, ymin, width, height]. The mask 
 ### Let's Get Everybody Turning Heads!
 InstanceDiffusion supports image compositions with granularity spanning from entire instances to parts and subparts. The positioning of parts/subparts can implicitly alter the overall pose of the object.
 
+https://github.com/frank-xwang/InstanceDiffusion/assets/58996472/1c4205a5-c3c4-4605-9fbd-c7023d4a4768
 
 ```
 python inference.py \
