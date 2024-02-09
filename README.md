@@ -19,6 +19,7 @@ This repository represents a re-implementation of InstanceDiffusion conducted by
 
 
 ## Updates
+* 02/09/2024 - Add model evaluation using the MSCOCO dataset
 * 02/05/2024 - Initial commit. Stay tuned
 
 
@@ -145,9 +146,30 @@ python inference.py \
 `--input_json` can be set to `demo_iterative_r{k+1}.json` for generating images in subsequent rounds.
 
 
-## Model Evaluation
+## Model Quantitative Evaluation on MSCOCO
 ### Location Conditions (point, scribble, box and instance mask)
-coming soon
+We support model local evaluation. Please download MSCOCO datasets and prepare it 
+
+```
+CUDA_VISIBLE_DEVICES=0 python eval_local.py \
+    --job_index 0 \
+    --num_jobs 1 \
+    --use_captions \
+    --save_dir "eval-cocoval17" \
+    --ckpt_path pretrained/instancediffusion_sd15.pth \
+    --test_config configs/test_mask.yaml \
+    --test_dataset cocoval17 \
+    --use_masked_att \
+    --mis 0.36 \
+    --alpha 1.0
+
+pip install ultralytics
+mv datasets/coco/images/val2017 datasets/coco/images/val2017-official
+ln -s generation_samples/eval-cocoval17 datasets/coco/images/val2017
+yolo val segment model=yolov8m-seg.pt data=coco.yaml device=0
+```
+We divide all samples evenly across `--num_jobs` splits, with each job (GPU) responsible for generating a portion of the validation dataset. The `--job_index` parameter specifies the job index for each individual job.
+
 
 ### Attribute Binding
 coming soon
