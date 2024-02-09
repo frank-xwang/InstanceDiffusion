@@ -148,7 +148,19 @@ python inference.py \
 
 ## Model Quantitative Evaluation on MSCOCO
 ### Location Conditions (point, scribble, box and instance mask)
-We support model local evaluation. Please download MSCOCO datasets and prepare it 
+Download the [MSCOCO 2017 datasets](https://cocodataset.org/#download) and store them in the `datasets` folder, ensuring the data is organized as follows:
+```
+coco/
+  annotations/
+    instances_val2017.json
+  images/
+    val2017/
+      000000000139.jpg
+      000000000285.jpg
+      ...
+```
+
+Please download the customized [instances_val2017.json](https://drive.google.com/file/d/1sYpb7jRZJyBJYPFHyjxosIDaiQhkrEhU/view?usp=drive_link), which resizes all images to 512x512 and adjusts the corresponding masks/boxes accordingly. Once you have organized the data, proceed with executing the following commands:
 
 ```
 CUDA_VISIBLE_DEVICES=0 python eval_local.py \
