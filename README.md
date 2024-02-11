@@ -19,6 +19,7 @@ This repository represents a re-implementation of InstanceDiffusion conducted by
 
 
 ## Updates
+* 02/10/2024 - Add model evaluation on attribute binding
 * 02/09/2024 - Add model evaluation using the MSCOCO dataset
 * 02/05/2024 - Initial commit. Stay tuned
 
@@ -184,7 +185,25 @@ We divide all samples evenly across `--num_jobs` splits, with each job (GPU) res
 
 
 ### Attribute Binding
-coming soon
+```
+test_attribute="colors" # colors, textures
+CUDA_VISIBLE_DEVICES=0 python eval_local.py \
+    --job_index 0 \
+    --num_jobs 1 \
+    --use_captions \
+    --save_dir "eval-cocoval17-colors" \
+    --ckpt_path pretrained/instancediffusion_sd15.pth \
+    --test_config configs/test_mask.yaml \
+    --test_dataset cocoval17 \
+    --use_masked_att \
+    --mis 0.36 \
+    --alpha 1.0
+    --add_random_${test_attribute}
+
+# Eval instance-level CLIP score and attribute binding performance
+python eval/eval_attribute_binding.py --folder eval-cocoval17-colors --test_random_colors
+```
+To assess InstanceDiffusion's performance in texture attribute binding, set `test_attribute` to `textures` and replace `--test_random_colors` with `--test_random_textures`.
 
 
 ## InstanceDiffusion Model Training 
