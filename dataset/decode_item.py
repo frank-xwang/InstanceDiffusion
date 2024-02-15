@@ -289,10 +289,10 @@ def decode_item(item):
     item['image'] = decode_base64_to_pillow(item['image'])
     segs = []
     for anno in item['annos']:
-        anno['image_embedding_before'] = decode_tensor_from_string(anno['image_embedding_before'])
+        # anno['image_embedding_before'] = decode_tensor_from_string(anno['image_embedding_before'])
         anno['text_embedding_before'] = decode_tensor_from_string(anno['text_embedding_before'])
-        anno['image_embedding_after'] = decode_tensor_from_string(anno['image_embedding_after'])
-        anno['text_embedding_after'] = decode_tensor_from_string(anno['text_embedding_after'])
+        # anno['image_embedding_after'] = decode_tensor_from_string(anno['image_embedding_after'])
+        # anno['text_embedding_after'] = decode_tensor_from_string(anno['text_embedding_after'])
         if "blip_clip_embeddings" in anno:
             anno['blip_clip_embeddings'] = decode_tensor_from_string(anno['blip_clip_embeddings'])
         if 'mask' in anno:
@@ -530,7 +530,6 @@ class decode:
         points_ =  torch.zeros(max_boxes_per_data, 2)
 
         text_embeddings_ =  torch.zeros(max_boxes_per_data, self.embedding_len)
-        image_embeddings_ = torch.zeros(max_boxes_per_data, self.embedding_len)
         text_masks_ = torch.zeros(max_boxes_per_data)
         image_masks_ = torch.zeros(max_boxes_per_data)
         caption_ = ""
@@ -541,7 +540,6 @@ class decode:
             "text_masks" : text_masks_,
             "image_masks" : image_masks_,
             "text_embeddings"  : text_embeddings_,
-            "image_embeddings" : image_embeddings_,
             "segs" : segs_,
             "points" : points_,
             "caption" : caption_,
@@ -593,21 +591,16 @@ class decode:
         all_boxes = []
         all_masks = []
         all_text_embeddings = []
-        all_image_embeddings = []
         all_obj_captions = []
         all_obj_scribbles = []        
         n_scribble_points = 20 # defined by n_scribble_points in decode_item()
         all_obj_polygons = []
         n_polygon_points = 256 # defined by n_polygon_points in decode_item()
-        # NOTE: New Seg
         all_obj_segs = []
         all_points = []
-
         if is_det:
             all_category_names = []
-
-        text_embedding_name = 'text_embedding_before' if self.which_layer_text == 'before' else 'text_embedding_after'
-        image_embedding_name = 'image_embedding_after'
+        text_embedding_name = 'text_embedding_before'
 
         for ann_idx, anno in enumerate(annos):
             x, y, w, h = anno['bbox']
@@ -658,10 +651,6 @@ class decode:
                     # all_text_embeddings.append((anno["blip_clip_embeddings"] + anno[text_embedding_name])/2)
                 else:
                     all_text_embeddings.append(anno[text_embedding_name])
-                if anno[image_embedding_name].size(-1) == 0:
-                    all_image_embeddings.append(  anno[image_embedding_name] )
-                else:
-                    all_image_embeddings.append(  self.mapping(anno[image_embedding_name])  )
                 if is_det:
                     all_category_names.append(anno["category_name"])
                     if 'caption' in anno:
@@ -685,7 +674,6 @@ class decode:
         segs = torch.zeros(self.max_boxes_per_data, self.image_size, self.image_size)
 
         text_embeddings =  torch.zeros(self.max_boxes_per_data, self.embedding_len)
-        image_embeddings = torch.zeros(self.max_boxes_per_data, self.embedding_len)
 
         if self.return_att_masks:
             att_masks = torch.zeros(self.max_boxes_per_data, 64, 64)
@@ -704,8 +692,6 @@ class decode:
             segs[i] = all_obj_segs[idx]
 
             text_embeddings[i] =  all_text_embeddings[idx]
-            if all_image_embeddings[idx].size(-1) != 0:
-                image_embeddings[i] = all_image_embeddings[idx]
             if is_det:
                 category_names.append(all_category_names[idx])
                 selected_captions[i] = all_obj_captions[idx]
@@ -726,12 +712,10 @@ class decode:
         out["masks"] = masks # indicating how many valid objects for this image-text data
         out["scribbles"] = scribbles
         out["polygons"] = polygons
-        # NOTE: New Seg
         out["segs"] = segs
         out["image_masks"] = image_masks # indicating how many objects still there after random dropping applied
         out["text_masks"] = text_masks # indicating how many objects still there after random dropping applied
         out["text_embeddings"] =  text_embeddings
-        out["image_embeddings"] = image_embeddings
         out["obj_captions"] = selected_captions
         if self.return_att_masks:
             out["att_masks"] =  att_masks          
@@ -745,13 +729,10 @@ class decode:
             out["instance_meta"][i]['boxes'][0] = all_boxes[idx]
             out["instance_meta"][i]['points'][0] = all_points[idx]
             out["instance_meta"][i]['masks'][0] = all_masks[idx]
-            # NOTE: New Seg
             out["instance_meta"][i]['segs'][0] = all_obj_segs[idx]
             out["instance_meta"][i]["text_masks"][0] = 1
             out["instance_meta"][i]["text_embeddings"][0] = all_text_embeddings[idx]
             out["instance_meta"][i]["image_masks"][0] = 1
-            if all_image_embeddings[idx].size(-1) != 0:
-                out["instance_meta"][i]["image_embeddings"][0] = all_image_embeddings[idx]
             if self.return_att_masks:
                 out["instance_meta"][i]["att_masks"][0] = att_masks[i]
             out["instance_meta"][i]["caption"] = all_obj_captions[idx]
