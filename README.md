@@ -19,6 +19,7 @@ This repository represents a re-implementation of InstanceDiffusion conducted by
 
 
 ## Updates
+* 02/19/2024 - Add PiM evaluation for scribble-/point-based image generation
 * 02/10/2024 - Add model evaluation on attribute binding
 * 02/09/2024 - Add model evaluation using the MSCOCO dataset
 * 02/05/2024 - Initial commit. Stay tuned
@@ -204,6 +205,32 @@ CUDA_VISIBLE_DEVICES=0 python eval_local.py \
 python eval/eval_attribute_binding.py --folder eval-cocoval17-colors --test_random_colors
 ```
 To assess InstanceDiffusion's performance in texture attribute binding, set `test_attribute` to `textures` and replace `--test_random_colors` with `--test_random_textures`.
+
+### PiM Evaluation for Scribble-/Point-based Image Generation
+```
+python eval_local.py \
+    --job_index 0 \
+    --num_jobs 1 \
+    --use_captions \
+    --save_dir "eval-cocoval17-point" \
+    --ckpt_path pretrained/instancediffusion_sd15.pth \
+    --test_config configs/test_point.yaml \
+    --test_dataset cocoval17 \
+    --use_masked_att \
+    --mis 0.36 \
+    --alpha 1.0
+
+pip install ultralytics
+mv datasets/coco/images/val2017 datasets/coco/images/val2017-official
+ln -s generation_samples/eval-cocoval17 datasets/coco/images/val2017
+yolo val segment model=yolov8m-seg.pt data=coco.yaml device=0
+
+# Please indicate the file path for predictions.json generated in the previous step
+python eval/eval_pim.py --pred_json /path/to/predictions.json
+
+```
+To evaluate PiM for scribble-based image generation, change `--test_config` to `configs/test_scribble.yaml` when executing `python eval_local.py`. Additionally, include `--test_scribble` when running `python eval/eval_pim.py`.
+We divide all samples evenly across `--num_jobs` splits, with each job (GPU) responsible for generating a portion of the validation dataset. The `--job_index` parameter specifies the job index for each individual job.
 
 
 ## InstanceDiffusion Model Training 
