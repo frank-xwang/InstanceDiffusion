@@ -222,7 +222,7 @@ python eval_local.py \
 
 pip install ultralytics
 mv datasets/coco/images/val2017 datasets/coco/images/val2017-official
-ln -s generation_samples/eval-cocoval17 datasets/coco/images/val2017
+ln -s generation_samples/eval-cocoval17-point datasets/coco/images/val2017
 yolo val segment model=yolov8m-seg.pt data=coco.yaml device=0
 
 # Please indicate the file path for predictions.json generated in the previous step
