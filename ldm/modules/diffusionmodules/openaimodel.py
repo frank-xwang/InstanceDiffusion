@@ -327,6 +327,7 @@ class UNetModel(nn.Module):
         grounding_downsampler = None,
         grounding_tokenizer = None,
         sd_v1_5 = False,
+        efficient_attention = False,
     ):
         super().__init__()
         
@@ -346,6 +347,7 @@ class UNetModel(nn.Module):
         self.inpaint_mode = inpaint_mode
         self.sd_v1_5 = sd_v1_5
         assert fuser_type in ["gatedSA","gatedSA2","gatedCA"]
+        self.efficient_attention = efficient_attention
 
         self.grounding_tokenizer_input = None # set externally
 
@@ -387,7 +389,7 @@ class UNetModel(nn.Module):
                 ch = mult * model_channels
                 if ds in attention_resolutions:
                     dim_head = ch // num_heads
-                    layers.append(SpatialTransformer(ch, key_dim=context_dim, value_dim=context_dim, n_heads=num_heads, d_head=dim_head, depth=transformer_depth, fuser_type=fuser_type, use_checkpoint=use_checkpoint))
+                    layers.append(SpatialTransformer(ch, key_dim=context_dim, value_dim=context_dim, n_heads=num_heads, d_head=dim_head, depth=transformer_depth, fuser_type=fuser_type, use_checkpoint=use_checkpoint, efficient_attention=efficient_attention))
                 
                 self.input_blocks.append(TimestepEmbedSequential(*layers))
                 input_block_chans.append(ch)
@@ -410,7 +412,7 @@ class UNetModel(nn.Module):
                      dims=dims,
                      use_checkpoint=use_checkpoint,
                      use_scale_shift_norm=use_scale_shift_norm),
-            SpatialTransformer(ch, key_dim=context_dim, value_dim=context_dim, n_heads=num_heads, d_head=dim_head, depth=transformer_depth, fuser_type=fuser_type, use_checkpoint=use_checkpoint),
+            SpatialTransformer(ch, key_dim=context_dim, value_dim=context_dim, n_heads=num_heads, d_head=dim_head, depth=transformer_depth, fuser_type=fuser_type, use_checkpoint=use_checkpoint, efficient_attention=efficient_attention),
             ResBlock(ch,
                      time_embed_dim,
                      dropout,
@@ -445,7 +447,7 @@ class UNetModel(nn.Module):
 
                 if ds in attention_resolutions:
                     dim_head = ch // num_heads
-                    layers.append( SpatialTransformer(ch, key_dim=context_dim, value_dim=context_dim, n_heads=num_heads, d_head=dim_head, depth=transformer_depth, fuser_type=fuser_type, use_checkpoint=use_checkpoint) )
+                    layers.append( SpatialTransformer(ch, key_dim=context_dim, value_dim=context_dim, n_heads=num_heads, d_head=dim_head, depth=transformer_depth, fuser_type=fuser_type, use_checkpoint=use_checkpoint, efficient_attention=efficient_attention) )
                 if level and i == num_res_blocks:
                     out_ch = ch
                     layers.append( Upsample(ch, conv_resample, dims=dims, out_channels=out_ch) )

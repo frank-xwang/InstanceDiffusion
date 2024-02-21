@@ -20,7 +20,8 @@ model:
     context_dim: 768
     fuser_type: gatedSA 
     use_checkpoint: True
-    sd_v1_5: True # True
+    sd_v1_5: True
+    efficient_attention: True
 
     grounding_tokenizer:
       target: ldm.modules.diffusionmodules.text_grounding_net.UniFusion

@@ -91,7 +91,8 @@ def run(meta, model, autoencoder, text_encoder, diffusion, clip_model, clip_proc
 
     # start sampling
     shape = (config.num_images, model.in_channels, model.image_size, model.image_size)
-    samples_fake = sampler.sample(S=steps, shape=shape, input=input_all,  uc=uc, guidance_scale=config.guidance_scale)
+    with torch.autocast(device_type=device, dtype=torch.float16):
+        samples_fake = sampler.sample(S=steps, shape=shape, input=input_all,  uc=uc, guidance_scale=config.guidance_scale)
     samples_fake = autoencoder.decode(samples_fake)
 
     # define output folder
@@ -178,7 +179,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    return_att_masks = True
+    return_att_masks = False
     ckpt = args.ckpt
 
     seed = args.seed

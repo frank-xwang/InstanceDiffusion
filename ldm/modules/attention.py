@@ -96,11 +96,12 @@ class LinearAttention(nn.Module):
 
 
 class CrossAttention(nn.Module):
-    def __init__(self, query_dim, key_dim, value_dim, heads=8, dim_head=64, dropout=0):
+    def __init__(self, query_dim, key_dim, value_dim, heads=8, dim_head=64, dropout=0, efficient_attention=False):
         super().__init__()
         inner_dim = dim_head * heads
         self.scale = dim_head ** -0.5
         self.heads = heads
+        self.efficient_attention = efficient_attention
 
         self.to_q = nn.Linear(query_dim, inner_dim, bias=False)
         self.to_k = nn.Linear(key_dim, inner_dim, bias=False)
@@ -126,26 +127,43 @@ class CrossAttention(nn.Module):
         H = self.heads
         C = HC // H 
 
-        q = q.view(B,N,H,C).permute(0,2,1,3).reshape(B*H,N,C) # (B*H)*N*C
-        k = k.view(B,M,H,C).permute(0,2,1,3).reshape(B*H,M,C) # (B*H)*M*C
-        v = v.view(B,M,H,C).permute(0,2,1,3).reshape(B*H,M,C) # (B*H)*M*C
+        q = q.view(B,N,H,C).permute(0,2,1,3) # B*H*N*C
+        k = k.view(B,M,H,C).permute(0,2,1,3) # B*H*M*C
+        v = v.view(B,M,H,C).permute(0,2,1,3) # B*H*M*C
+    
+        if self.efficient_attention:
+            # Flash attention requires q,k,v to have the same last dimension and to be a multiple of 8 and less than
+            # or equal to 128. If the last dimension of q,k,v is larger than 128, we cannot use flash_attention. 
+            # https://github.com/Dao-AILab/flash-attention/issues/108
+            if C <= 128:
+                with torch.backends.cuda.sdp_kernel(enable_flash=True, enable_math=False, enable_mem_efficient=False):
+                    out = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)
+            else:
+                with torch.backends.cuda.sdp_kernel(enable_flash=False):
+                    out = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)
+            out = out.contiguous().view(B,H,N,C).permute(0,2,1,3).reshape(B,N,(H*C)) # B*N*(H*C)
+        else:
+            q = q.reshape(B*H,N,C) # (B*H)*N*C
+            k = k.reshape(B*H,M,C) # (B*H)*M*C
+            v = v.reshape(B*H,M,C) # (B*H)*M*C
 
-        sim = torch.einsum('b i d, b j d -> b i j', q, k) * self.scale # (B*H)*N*M
-        self.fill_inf_from_mask(sim, mask)
-        attn = sim.softmax(dim=-1) # (B*H)*N*M
+            sim = torch.einsum('b i d, b j d -> b i j', q, k) * self.scale # (B*H)*N*M
+            self.fill_inf_from_mask(sim, mask)
+            attn = sim.softmax(dim=-1) # (B*H)*N*M
 
-        out = torch.einsum('b i j, b j d -> b i d', attn, v) # (B*H)*N*C
-        out = out.view(B,H,N,C).permute(0,2,1,3).reshape(B,N,(H*C)) # B*N*(H*C)
+            out = torch.einsum('b i j, b j d -> b i d', attn, v) # (B*H)*N*C
+            out = out.view(B,H,N,C).permute(0,2,1,3).reshape(B,N,(H*C)) # B*N*(H*C)
 
         return self.to_out(out)
 
 
 class SelfAttention(nn.Module):
-    def __init__(self, query_dim, heads=8, dim_head=64, dropout=0.):
+    def __init__(self, query_dim, heads=8, dim_head=64, dropout=0., efficient_attention=False):
         super().__init__()
         inner_dim = dim_head * heads
         self.scale = dim_head ** -0.5
         self.heads = heads
+        self.efficient_attention = efficient_attention
 
         self.to_q = nn.Linear(query_dim, inner_dim, bias=False)
         self.to_k = nn.Linear(query_dim, inner_dim, bias=False)
@@ -162,18 +180,19 @@ class SelfAttention(nn.Module):
         H = self.heads
         C = HC // H 
 
-        q = q.view(B,N,H,C).permute(0,2,1,3).reshape(B*H,N,C) # (B*H)*N*C
-        k = k.view(B,N,H,C).permute(0,2,1,3).reshape(B*H,N,C) # (B*H)*N*C
-        v = v.view(B,N,H,C).permute(0,2,1,3).reshape(B*H,N,C) # (B*H)*N*C
-
-        sim = torch.einsum('b i c, b j c -> b i j', q, k) * self.scale  # (B*H)*N*N
-
-        if grounding_input is not None: 
+        q = q.view(B,N,H,C).permute(0,2,1,3) # B*H*N*C
+        k = k.view(B,N,H,C).permute(0,2,1,3) # B*H*N*C
+        v = v.view(B,N,H,C).permute(0,2,1,3) # B*H*N*C
+    
+        att_masks_ = None
+        # flash attention does not support the attention masking yet
+        if grounding_input is not None and not self.efficient_attention: 
             # att_masks: B*(n_objs*4)*sqrt(w_h)*sqrt(w_h)
             n_objs = grounding_input["att_masks"].shape[1]
 
             att_masks_reshape = None
-            if N - n_objs * 4 == 64*64:
+            # FIXME: Brute forcely checking that the number of visual tokens equals 64*64
+            if N - n_objs * 4 - 64 == 64*64: 
                 att_masks_reshape = grounding_input["att_masks"]
                 att_key = "att_masks_selfAtt64"
 
@@ -223,9 +242,9 @@ class SelfAttention(nn.Module):
                     # mask the self-attention between grounded tokens and the visual tokens
                     att_masks_reshape = att_masks_reshape.view(B,1,n_objs,w_h)
                     # the order of inputs are [box, point, scribble, mask]. only box and mask need to have masked self-attention
-                    att_masks_[:,:,w_h:,:w_h] = att_masks_reshape.repeat(1,1,4,1)
+                    att_masks_[:,:,w_h:-64,:w_h] = att_masks_reshape.repeat(1,1,4,1)
                     att_masks_[:,:,w_h+n_objs:w_h+n_objs*3,:w_h] = 1
-                    att_masks_[:,:,:w_h,w_h:] = att_masks_reshape.permute(0,1,3,2).repeat(1,1,1,4)
+                    att_masks_[:,:,:w_h,w_h:-64] = att_masks_reshape.permute(0,1,3,2).repeat(1,1,1,4)
                     att_masks_[:,:,:w_h,w_h+n_objs:w_h+n_objs*3] = 1
 
                     # add 1e-9 along the diagonal to avoid nan
@@ -234,24 +253,42 @@ class SelfAttention(nn.Module):
 
                     # save the masks for later blocks
                     grounding_input[att_key] = att_masks_
-                # the larger the threshold is, the smaller area the grounded info can influence
-                # if threshold = 1.01, all grounded info has no influence on the rest of the patches.
+                
+        if self.efficient_attention:
+            # Flash attention requires q,k,v to have the same last dimension and to be a multiple of 8 and less than
+            # or equal to 128. If the last dimension of q,k,v is larger than 128, we cannot use flash_attention. 
+            # https://github.com/Dao-AILab/flash-attention/issues/108
+            if C <= 128:
+                with torch.backends.cuda.sdp_kernel(enable_flash=True, enable_math=False, enable_mem_efficient=False):
+                    out = F.scaled_dot_product_attention(q, k, v, attn_mask=att_masks_)
+            else:
+                with torch.backends.cuda.sdp_kernel(enable_flash=False):
+                    out = F.scaled_dot_product_attention(q, k, v, attn_mask=att_masks_)
+            out = out.contiguous().view(B,H,N,C).permute(0,2,1,3).reshape(B,N,(H*C)) # B*N*(H*C)
+        else:
+            q = q.reshape(B*H,N,C) # (B*H)*N*C
+            k = k.reshape(B*H,N,C) # (B*H)*M*C
+            v = v.reshape(B*H,N,C) # (B*H)*M*C
+
+            sim = torch.einsum('b i c, b j c -> b i j', q, k) * self.scale  # (B*H)*N*N
+            # the larger the threshold is, the smaller area the grounded info can influence
+            # if threshold = 1.01, all grounded info has no influence on the rest of the patches.
+            if att_masks_ is not None:
                 sim = sim.view(B,H,N,N).masked_fill(att_masks_ <= 0.0, -np.inf).view(B*H,N,N) # -np.inf
 
-        attn = sim.softmax(dim=-1) # (B*H)*N*N
-
-        out = torch.einsum('b i j, b j c -> b i c', attn, v) # (B*H)*N*C
-        out = out.view(B,H,N,C).permute(0,2,1,3).reshape(B,N,(H*C)) # B*N*(H*C)
+            attn = sim.softmax(dim=-1) # (B*H)*N*N
+            out = torch.einsum('b i j, b j c -> b i c', attn, v) # (B*H)*N*C
+            out = out.view(B,H,N,C).permute(0,2,1,3).reshape(B,N,(H*C)) # B*N*(H*C)
         return self.to_out(out)
 
 
 class GatedSelfAttentionDense(nn.Module):
-    def __init__(self, query_dim, context_dim,  n_heads, d_head):
+    def __init__(self, query_dim, context_dim,  n_heads, d_head, efficient_attention=False):
         super().__init__()
         # we need a linear projection since we need cat visual feature and obj feature
         self.linear = nn.Linear(context_dim, query_dim)
 
-        self.attn = SelfAttention(query_dim=query_dim, heads=n_heads, dim_head=d_head)
+        self.attn = SelfAttention(query_dim=query_dim, heads=n_heads, dim_head=d_head, efficient_attention=efficient_attention)
         self.ff = FeedForward(query_dim, glu=True)
 
         self.norm1 = nn.LayerNorm(query_dim)
@@ -275,17 +312,17 @@ class GatedSelfAttentionDense(nn.Module):
 
 
 class BasicTransformerBlock(nn.Module):
-    def __init__(self, query_dim, key_dim, value_dim, n_heads, d_head, fuser_type, use_checkpoint=True):
+    def __init__(self, query_dim, key_dim, value_dim, n_heads, d_head, fuser_type, use_checkpoint=True, efficient_attention=False):
         super().__init__()
-        self.attn1 = SelfAttention(query_dim=query_dim, heads=n_heads, dim_head=d_head)  
+        self.attn1 = SelfAttention(query_dim=query_dim, heads=n_heads, dim_head=d_head, efficient_attention=efficient_attention)  
         self.ff = FeedForward(query_dim, glu=True)
-        self.attn2 = CrossAttention(query_dim=query_dim, key_dim=key_dim, value_dim=value_dim, heads=n_heads, dim_head=d_head)  
+        self.attn2 = CrossAttention(query_dim=query_dim, key_dim=key_dim, value_dim=value_dim, heads=n_heads, dim_head=d_head, efficient_attention=efficient_attention)  
         self.norm1 = nn.LayerNorm(query_dim)
         self.norm2 = nn.LayerNorm(query_dim)
         self.norm3 = nn.LayerNorm(query_dim)
         self.use_checkpoint = use_checkpoint
         # note key_dim here actually is context_dim
-        self.fuser = GatedSelfAttentionDense(query_dim, key_dim, n_heads, d_head) 
+        self.fuser = GatedSelfAttentionDense(query_dim, key_dim, n_heads, d_head, efficient_attention=efficient_attention) 
 
     def forward(self, x, context, objs, grounding_input=None, drop_box_mask=False):
         if self.use_checkpoint and x.requires_grad:
@@ -302,7 +339,7 @@ class BasicTransformerBlock(nn.Module):
 
 
 class SpatialTransformer(nn.Module):
-    def __init__(self, in_channels, key_dim, value_dim, n_heads, d_head, depth=1, fuser_type=None, use_checkpoint=True):
+    def __init__(self, in_channels, key_dim, value_dim, n_heads, d_head, depth=1, fuser_type=None, use_checkpoint=True, efficient_attention=False):
         super().__init__()
         self.in_channels = in_channels
         query_dim = n_heads * d_head
@@ -316,7 +353,7 @@ class SpatialTransformer(nn.Module):
                                  padding=0)
 
         self.transformer_blocks = nn.ModuleList(
-            [BasicTransformerBlock(query_dim, key_dim, value_dim, n_heads, d_head, fuser_type, use_checkpoint=use_checkpoint)
+            [BasicTransformerBlock(query_dim, key_dim, value_dim, n_heads, d_head, fuser_type, use_checkpoint=use_checkpoint,efficient_attention=efficient_attention)
                 for d in range(depth)]
         )
 

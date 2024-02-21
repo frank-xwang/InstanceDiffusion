@@ -21,6 +21,7 @@ model:
     fuser_type: gatedSA
     use_checkpoint: True
     sd_v1_5: True # the performance difference between using sd1.5 and sd1.4 is very small
+    efficient_attention: True
 
     grounding_tokenizer:
       target: ldm.modules.diffusionmodules.text_grounding_net.UniFusion

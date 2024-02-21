@@ -19,6 +19,7 @@ This repository represents a re-implementation of InstanceDiffusion conducted by
 
 
 ## Updates
+* 02/21/2024 - Support flash attention, memory usage can be reduced by more than half.
 * 02/19/2024 - Add PiM evaluation for scribble-/point-based image generation
 * 02/10/2024 - Add model evaluation on attribute binding
 * 02/09/2024 - Add model evaluation using the MSCOCO dataset
@@ -80,6 +81,8 @@ The `num_images` parameter indicates how many images to generate.
 The `mis` setting adjusts the proportion of timesteps utilizing multi-instance sampler, recommended to be below 0.4. A higher `mis` value can decrease information leakage between instances and improve image quality, but may also slow the generation process.
 The SDXL refiner is activated if the `cascade_strength` is larger than 0. Note: The SDXL-Refiner was not employed for quantitative evaluations in the paper, but we recently found that it can improve the image generation quality.
 Adjusting `alpha` modifies the fraction of timesteps using instance-level conditions, where a higher `alpha` ensures better adherence to location conditions at the potential cost of image quality, there is a trade-off.
+
+Our implementation supports Flash/Math/MemEfficient attention, utilizing PyTorch's `torch.backends.cuda.sdp_kernel`. To disable it, simply set `efficient_attention: False` in the configuration `.yaml` file.
 
 The bounding box should follow the format [xmin, ymin, width, height]. The mask is expected in RLE (Run-Length Encoding) format. Scribbles should be specified as [[x1, y1],..., [x20, y20]], and a point is denoted by [x, y].
 
@@ -173,7 +176,6 @@ CUDA_VISIBLE_DEVICES=0 python eval_local.py \
     --ckpt_path pretrained/instancediffusion_sd15.pth \
     --test_config configs/test_mask.yaml \
     --test_dataset cocoval17 \
-    --use_masked_att \
     --mis 0.36 \
     --alpha 1.0
 
@@ -196,7 +198,6 @@ CUDA_VISIBLE_DEVICES=0 python eval_local.py \
     --ckpt_path pretrained/instancediffusion_sd15.pth \
     --test_config configs/test_mask.yaml \
     --test_dataset cocoval17 \
-    --use_masked_att \
     --mis 0.36 \
     --alpha 1.0
     --add_random_${test_attribute}
@@ -216,7 +217,6 @@ python eval_local.py \
     --ckpt_path pretrained/instancediffusion_sd15.pth \
     --test_config configs/test_point.yaml \
     --test_dataset cocoval17 \
-    --use_masked_att \
     --mis 0.36 \
     --alpha 1.0
 
@@ -253,7 +253,6 @@ python run_with_submitit.py \
     --train_file="train.txt" \
     --random_blip 0.5 \
     --count_dup true \
-    --use_masked_att true \
     --add_inst_cap_2_global false \
     --enable_ema true \
     --re_init_opt true \
