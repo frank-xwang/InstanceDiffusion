@@ -58,11 +58,11 @@ See [Preparing Datasets for InstanceDiffusion](dataset-generation/README.md).
 InstanceDiffusion enhances text-to-image models by providing additional instance-level control. In additon to a global text prompt, InstanceDiffusion allows for paired instance-level prompts and their locations (e.g. points, boxes, scribbles or instance masks) to be specified when generating images. 
 We add our proposed learnable UniFusion blocks to handle the additional per-instance conditioning. UniFusion fuses the instance conditioning with the backbone and modulate its features to enable instance conditioned image generation. Additionally, we propose ScaleU blocks that improve the UNet’s ability to respect instance-conditioning by rescaling the skip-connection and backbone feature maps produced in the UNet. At inference, we propose Multi-instance Sampler which reduces information leakage across multiple instances.
 
-Please check our [paper](https://arxiv.org/abs/xxxx.xxxxx) and [project page](http://people.eecs.berkeley.edu/~xdwang/projects/InstDiff/) for more details.
+Please check our [paper](https://arxiv.org/abs/2402.03290) and [project page](http://people.eecs.berkeley.edu/~xdwang/projects/InstDiff/) for more details.
 
 
 ## InstanceDiffusion Inference Demons
-If you want to run InstanceDiffusion demos locally, we provide `inference.py`. Please download the pretrained [InstanceDiffusion](https://drive.google.com/drive/folders/1Jm3bsBmq5sHBnaN5DemRUqNR0d4cVzqG?usp=sharing) and [SD1.5](https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.ckpt), place them under `pretrained` folder and then run it with:
+If you want to run InstanceDiffusion demos locally, we provide `inference.py`. Please download the pretrained InstanceDiffusion from [Hugging Face](https://huggingface.co/xudongw/InstanceDiffusion/tree/main) or [Google Drive](https://drive.google.com/drive/folders/1Jm3bsBmq5sHBnaN5DemRUqNR0d4cVzqG?usp=sharing) and [SD1.5](https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.ckpt), place them under `pretrained` folder and then run it with:
 ```
 python inference.py \
   --num_images 8 \
