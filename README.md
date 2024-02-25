@@ -19,7 +19,7 @@ This repository represents a re-implementation of InstanceDiffusion conducted by
 
 
 ## Updates
-* 02/25/2024 - InstanceDiffusion is ported into [ComfyUI](#third-party-implementations) (thanks to Tucker Darby!) 
+* 02/25/2024 - InstanceDiffusion is ported into [ComfyUI](#third-party-implementations). Check out some cool [video demos](#third-party-implementations)! (thanks to Tucker Darby) 
 * 02/21/2024 - Support flash attention, memory usage can be reduced by more than half.
 * 02/19/2024 - Add PiM evaluation for scribble-/point-based image generation
 * 02/10/2024 - Add model evaluation on attribute binding
