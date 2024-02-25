@@ -19,6 +19,7 @@ This repository represents a re-implementation of InstanceDiffusion conducted by
 
 
 ## Updates
+* 02/25/2024 - InstanceDiffusion is ported into [ComfyUI](#third-party-implementations) (thanks to Tucker Darby!) 
 * 02/21/2024 - Support flash attention, memory usage can be reduced by more than half.
 * 02/19/2024 - Add PiM evaluation for scribble-/point-based image generation
 * 02/10/2024 - Add model evaluation on attribute binding
@@ -258,6 +259,13 @@ python run_with_submitit.py \
     --re_init_opt true \
 ```
 For more options, see `python run_with_submitit.py -h`.
+
+## Third-party Implementations
+[ComfyUI-InstanceDiffusion](https://github.com/logtd/ComfyUI-InstanceDiffusion): Tucker Darby helps to port InstanceDiffusion into ComfyUI. Followings are a few videos demos created by Tucker (videos are made with a ComfyUI workflow that uses AnimateDiff with AnimateLCM as the method of consistency):
+
+Demo1             |  Demo2
+-------------------------|-------------------------
+![](https://github.com/frank-xwang/InstanceDiffusion/assets/58996472/790067ab-4313-4be1-82c6-f22e2aa99b66)  |  ![](https://github.com/frank-xwang/InstanceDiffusion/assets/58996472/aa7c9d65-1ffe-4ef3-b849-fac6e415320a)
 
 
 ## License and Acknowledgment
