@@ -479,8 +479,9 @@ class decode:
         assert which_layer_text in ['before','after']
         assert which_layer_image in ['after', 'after_renorm', 'after_reproject']
         assert random_drop_embedding in ['none', 'both', 'image']
-        # Last linear layer used in CLIP text encoder. Here we use it to map CLIP image embedding into penultimate text space. See Appendix in paper. 
-        self.projection_matrix = torch.load('projection_matrix')
+        # Last linear layer used in CLIP text encoder. Here we use it to map CLIP image embedding into penultimate text space.
+        if self.which_layer_image == 'after_reproject':
+            self.projection_matrix = torch.load('projection_matrix')
 
         # preprocessed CLIP feature embedding length: 768
         self.embedding_len = 768
