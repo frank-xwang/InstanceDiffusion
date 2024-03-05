@@ -162,20 +162,20 @@ def draw_boxes(boxes, descriptions=None, caption=None):
         draw.text((0, 0), caption, fill=(255,102,102))
     return image
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=str,  default="OUTPUT", help="root folder for output")
     parser.add_argument("--num_images", type=int, default=8, help="")
     parser.add_argument("--guidance_scale", type=float,  default=7.5, help="")
     parser.add_argument("--negative_prompt", type=str,  default='longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality', help="")
-    parser.add_argument("--input_json", type=str, default='/data/home/xudongw/InstanceDiffusion/demos/demo_multiround_r1.json', help="")
-    parser.add_argument("--ckpt", type=str, default='/data/home/xudongw/InstanceDiffusion/OUTPUT/0315-0.00005-40epochs-16nodes-8gpus-4batchsize-0.5BLIP-pretrain0276/tag01/checkpoint_00410010.pth', help="")
+    parser.add_argument("--input_json", type=str, default='demos/demo_cat_dog_robin.json', help="json files for instance-level conditions")
+    parser.add_argument("--ckpt", type=str, default='pretrained/instancediffusion_sd15.pth', help="pretrained checkpoint")
     parser.add_argument("--seed", type=int, default=0, help="random seed")
-    parser.add_argument("--alpha", type=float, default=0.7, help="the percentage of timesteps using grounding inputs")
-    parser.add_argument("--mis", type=float, default=0.0, help="the percentage of timesteps using MIS")
-    parser.add_argument("--cascade_strength", type=float, default=0.0, help="strength of SDXL Refiner.")
-    parser.add_argument("--test_config", type=str, default="", help="config for model inference.")
+    parser.add_argument("--alpha", type=float, default=0.75, help="the percentage of timesteps using grounding inputs")
+    parser.add_argument("--mis", type=float, default=0.36, help="the percentage of timesteps using MIS")
+    parser.add_argument("--cascade_strength", type=float, default=0.3, help="strength of SDXL Refiner.")
+    parser.add_argument("--test_config", type=str, default="configs/test_mask.yaml", help="config for model inference.")
 
     args = parser.parse_args()
 

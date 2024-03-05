@@ -101,8 +101,7 @@ target/
 # pretrained models
 videocutler/pretrain
 yolov8m-seg.pt
-pretrained/instancediffusion_sd15.pth
-pretrained/instancediffusion_sd15_.pth
+pretrained/instancediffusion_sd15*.pth
 # *.pth
 
 # env setup files
