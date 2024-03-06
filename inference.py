@@ -174,7 +174,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=0, help="random seed")
     parser.add_argument("--alpha", type=float, default=0.75, help="the percentage of timesteps using grounding inputs")
     parser.add_argument("--mis", type=float, default=0.36, help="the percentage of timesteps using MIS")
-    parser.add_argument("--cascade_strength", type=float, default=0.3, help="strength of SDXL Refiner.")
+    parser.add_argument("--cascade_strength", type=float, default=0.35, help="strength of SDXL Refiner.")
     parser.add_argument("--test_config", type=str, default="configs/test_mask.yaml", help="config for model inference.")
 
     args = parser.parse_args()

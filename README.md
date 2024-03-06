@@ -15,7 +15,7 @@ Compared to the previous SOTA, InstanceDiffusion achieves **2.0 times** higher A
 
 
 ## Disclaimer
-This repository represents a re-implementation of InstanceDiffusion conducted by the first author during his time at UC Berkeley. Minor performance discrepancies may exist (differences of ~1% in AP) compared to the results reported in the original paper. The goal of this repository is to replicate the original paper's findings and insights, primarily for academic and research purposes.
+This repository represents a re-implementation of InstanceDiffusion conducted by the first author during his time at UC Berkeley. Minor performance discrepancies may exist compared to the results reported in the original paper. The goal of this repository is to replicate the original paper's findings and insights, primarily for academic and research purposes.
 
 
 ## Updates
@@ -71,11 +71,11 @@ python inference.py \
   --input_json demos/demo_cat_dog_robin.json \
   --ckpt pretrained/instancediffusion_sd15.pth \
   --test_config configs/test_box.yaml \
-  --guidance_scale 5 \
+  --guidance_scale 7.5 \
   --alpha 0.8 \
   --seed 0 \
   --mis 0.36 \
-  --cascade_strength 0.3 \
+  --cascade_strength 0.4 \
 ```
 The JSON file `input_json` specifies text prompts and location conditions for generating images, with several demo JSON files available under the `demos` directory. 
 The `num_images` parameter indicates how many images to generate. 
@@ -101,11 +101,11 @@ python inference.py \
   --input_json demos/eagle_left.json \
   --ckpt pretrained/instancediffusion_sd15.pth \
   --test_config configs/test_box.yaml \
-  --guidance_scale 5 \
+  --guidance_scale 7.5 \
   --alpha 0.8 \
   --seed 0 \
   --mis 0.2 \
-  --cascade_strength 0.3 \
+  --cascade_strength 0.4 \
 ```
 
 
@@ -122,11 +122,11 @@ python inference.py \
   --input_json demos/demo_corgi_kitchen.json \
   --ckpt pretrained/instancediffusion_sd15.pth \
   --test_config configs/test_point.yaml \
-  --guidance_scale 5 \
+  --guidance_scale 7.5 \
   --alpha 0.8 \
   --seed 0 \
   --mis 0.2 \
-  --cascade_strength 0.3 \
+  --cascade_strength 0.4 \
 ```
 
 
@@ -142,11 +142,11 @@ python inference.py \
   --input_json demos/demo_iterative_r1.json \
   --ckpt pretrained/instancediffusion_sd15.pth \
   --test_config configs/test_box.yaml \
-  --guidance_scale 5 \
+  --guidance_scale 7.5 \
   --alpha 0.8 \
   --seed 0 \
   --mis 0.2 \
-  --cascade_strength 0.3 \
+  --cascade_strength 0.4 \
 ```
 
 `--input_json` can be set to `demo_iterative_r{k+1}.json` for generating images in subsequent rounds.
