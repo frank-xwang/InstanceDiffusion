@@ -17,6 +17,7 @@ Please begin by following the instructions in [INSTALL](https://github.com/frank
 ```bash
 # install grounding-sam, ram and grounding-dino
 git clone git@github.com:IDEA-Research/Grounded-Segment-Anything.git
+cd Grounded-Segment-Anything
 python -m pip install -e segment_anything
 git clone https://github.com/IDEA-Research/GroundingDINO.git
 pip install -U openmim
@@ -27,10 +28,11 @@ pip install -r ./recognize-anything/requirements.txt
 pip install -e ./recognize-anything/
 pip install --upgrade diffusers
 pip install submitit
+# install lavis
+pip install salesforce-lavis
+pip install webdataset
 
 # download pretrained checkpoints
-cd Grounded-Segment-Anything
-
 wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
 wget https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
 wget https://huggingface.co/spaces/xinyu1205/Tag2Text/resolve/main/ram_swin_large_14m.pth
@@ -62,7 +64,7 @@ python run_with_submitit_generate_caption.py \
     --partition learn \
     --num_jobs 1 \
     --config ../Grounded-Segment-Anything/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py \
-    --ram_checkpoint ../Grounded-Segment-Anything/Tag2Text/ram_swin_large_14m.pth \
+    --ram_checkpoint ../Grounded-Segment-Anything/ram_swin_large_14m.pth \
     --grounded_checkpoint ../Grounded-Segment-Anything/groundingdino_swint_ogc.pth \
     --sam_checkpoint ../Grounded-Segment-Anything/sam_vit_h_4b8939.pth \
     --box_threshold 0.25 \

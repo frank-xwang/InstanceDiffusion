@@ -27,8 +27,9 @@ def parse_args():
 
 def get_shared_folder() -> Path:
     user = os.getenv("USER")
-    if Path("/fsx-muvigen/").is_dir():
-        p = Path(f"/fsx-muvigen/{user}/InstDiff/submitit")
+    # the shared folder should be the folder that is visible by all machines / nodes.
+    if Path("/SHARED-FOLDER/").is_dir():
+        p = Path(f"/SHARED-FOLDER/{user}/InstDiff/submitit")
         p.mkdir(exist_ok=True)
         return p
     raise RuntimeError("No shared folder available")

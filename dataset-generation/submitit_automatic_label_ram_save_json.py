@@ -26,9 +26,14 @@ import matplotlib.pyplot as plt
 # Recognize Anything Model & Tag2Text
 import sys
 sys.path.append('../Grounded-Segment-Anything')
-sys.path.append('../Grounded-Segment-Anything/Tag2Text')
-from Tag2Text.models import tag2text
-from Tag2Text import inference_ram
+# uncomment the following lines if you are using Grounded-SAM commit before 2023-11-23
+# sys.path.append('../Grounded-Segment-Anything/Tag2Text')
+# from Tag2Text.models import tag2text
+# from Tag2Text import inference_ram
+
+# use the following lines if you are using Grounded-SAM commit after 2023-11-23
+from ram.models import ram
+from ram import inference_ram
 import torchvision.transforms as TS
 
 import base64
@@ -388,7 +393,9 @@ def main(args):
                 ])
 
     # load model
-    ram_model = tag2text.ram(pretrained=ram_checkpoint,
+    # use tag2text.ram if you are using Grounded-SAM commit before 2023-11-23
+    # ram_model = tag2text.ram(pretrained=ram_checkpoint,
+    ram_model = ram(pretrained=ram_checkpoint,
                                         image_size=384,
                                         vit='swin_l')
     # threshold for tagging
@@ -461,7 +468,8 @@ def main(args):
         # run RAM model
         raw_image = image_pil.resize((384, 384))
         raw_image  = transform(raw_image).unsqueeze(0).to(device)
-        res = inference_ram.inference(raw_image , ram_model)
+        # use inference_ram.inference if you are using Grounded-SAM commit before 2023-11-23
+        res = inference_ram(raw_image , ram_model)
 
         # Currently ", " is better for detecting single tags
         # while ". " is a little worse in some case

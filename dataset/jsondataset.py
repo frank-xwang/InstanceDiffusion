@@ -6,7 +6,7 @@ from dataset.decode_item import decode
 
 class JsonDataset(Dataset):
     """Custom dataset."""
-    def __init__(self, text_file, root_dir="/fsx-muvigen/xudongw/xudongw/DATASETS/", decode_func=None, config=None):
+    def __init__(self, text_file, root_dir="xudongw/DATASETS/", decode_func=None, config=None):
         """
         Arguments:
             text_file (string): path to the text file with paths to all json files.
