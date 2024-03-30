@@ -152,7 +152,10 @@ python inference.py \
 `--input_json` can be set to `demo_iterative_r{k+1}.json` for generating images in subsequent rounds.
 
 
-## Model Quantitative Evaluation on MSCOCO
+## Model Quantitative Evaluation on MSCOCO (Zero-shot)
+
+Our model has never been trained on images from MSCOCO, we perform the zero-shot evaluation on MSCOCO to demonstrate the generalizability of InstanceDiffusion. 
+
 ### Location Conditions (point, scribble, box and instance mask)
 Download the [MSCOCO 2017 datasets](https://cocodataset.org/#download) and store them in the `datasets` folder, ensuring the data is organized as follows:
 ```
