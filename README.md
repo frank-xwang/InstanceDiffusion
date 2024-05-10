@@ -270,6 +270,8 @@ Demo1             |  Demo2
 -------------------------|-------------------------
 ![](https://github.com/frank-xwang/InstanceDiffusion/assets/58996472/790067ab-4313-4be1-82c6-f22e2aa99b66)  |  ![](https://github.com/frank-xwang/InstanceDiffusion/assets/58996472/aa7c9d65-1ffe-4ef3-b849-fac6e415320a)
 
+![video-demo](https://github.com/frank-xwang/InstanceDiffusion/assets/58996472/5fbee3ff-1e8d-4f1b-9dd2-8db840407342)
+
 
 ## License and Acknowledgment
 The majority of InstanceDiffusion is licensed under the [Apache License](LICENSE), however portions of the project are available under separate license terms: CLIP, BLIP, Stable Diffusion and GLIGEN are licensed under their own licenses; If you later add other third party code, please keep this license info updated, and please let us know if that component is licensed under something other than Apache, CC-BY-NC, MIT, or CC0.
