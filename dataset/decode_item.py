@@ -420,27 +420,27 @@ def mask_for_random_drop_text_or_image_feature(masks, random_drop_embedding):
     return image_masks, text_masks
 
 
-def project(x, projection_matrix):
-    """
-    x (Batch*768) should be the penultimate feature of CLIP (before projection)
-    projection_matrix (768*768) is the CLIP projection matrix, which should be weight.data of Linear layer 
-    defined in CLIP (out_dim, in_dim), thus we need to apply transpose below.  
-    this function will return the CLIP feature (without normalziation)
-    """
-    return x@torch.transpose(projection_matrix, 0, 1)
+# def project(x, projection_matrix):
+#     """
+#     x (Batch*768) should be the penultimate feature of CLIP (before projection)
+#     projection_matrix (768*768) is the CLIP projection matrix, which should be weight.data of Linear layer 
+#     defined in CLIP (out_dim, in_dim), thus we need to apply transpose below.  
+#     this function will return the CLIP feature (without normalziation)
+#     """
+#     return x@torch.transpose(projection_matrix, 0, 1)
 
 
-def inv_project(y, projection_matrix):
-    """
-    y (Batch*768) should be the CLIP feature (after projection)
-    projection_matrix (768*768) is the CLIP projection matrix, which should be weight.data of Linear layer 
-    defined in CLIP (out_dim, in_dim).  
-    this function will return the CLIP penultimate feature. 
+# def inv_project(y, projection_matrix):
+#     """
+#     y (Batch*768) should be the CLIP feature (after projection)
+#     projection_matrix (768*768) is the CLIP projection matrix, which should be weight.data of Linear layer 
+#     defined in CLIP (out_dim, in_dim).  
+#     this function will return the CLIP penultimate feature. 
     
-    Note: to make sure getting the correct penultimate feature, the input y should not be normalized. 
-    If it is normalized, then the result will be scaled by CLIP feature norm, which is unknown.   
-    """
-    return y@torch.transpose(torch.linalg.inv(projection_matrix), 0, 1)
+#     Note: to make sure getting the correct penultimate feature, the input y should not be normalized. 
+#     If it is normalized, then the result will be scaled by CLIP feature norm, which is unknown.   
+#     """
+#     return y@torch.transpose(torch.linalg.inv(projection_matrix), 0, 1)
 
 
 class decode:
@@ -480,26 +480,26 @@ class decode:
         assert which_layer_image in ['after', 'after_renorm', 'after_reproject']
         assert random_drop_embedding in ['none', 'both', 'image']
         # Last linear layer used in CLIP text encoder. Here we use it to map CLIP image embedding into penultimate text space.
-        if self.which_layer_image == 'after_reproject':
-            self.projection_matrix = torch.load('projection_matrix')
+        # if self.which_layer_image == 'after_reproject':
+        #     self.projection_matrix = torch.load('projection_matrix')
 
         # preprocessed CLIP feature embedding length: 768
         self.embedding_len = 768
 
-    def mapping(self, image_embedding):
-        if self.which_layer_image == 'after':
-            # use CLIP image feaure, the aligned feature space with norm=1. 
-            return image_embedding
-        elif self.which_layer_image == 'after_renorm':
-            # same as before but normalize it to 28.7, which is empirically same as text penultimate feature norm.
-            return image_embedding*28.7
-        elif self.which_layer_image == 'after_reproject':
-            # Re-project the CLIP image feature into text penultimate space using text linear matrix and norm it into 28.7
-            image_embedding = project( image_embedding.unsqueeze(0), self.projection_matrix.T )
-            image_embedding = image_embedding.squeeze(0)
-            image_embedding = image_embedding / image_embedding.norm() 
-            image_embedding = image_embedding * 28.7 
-            return image_embedding
+    # def mapping(self, image_embedding):
+    #     if self.which_layer_image == 'after':
+    #         # use CLIP image feaure, the aligned feature space with norm=1. 
+    #         return image_embedding
+    #     elif self.which_layer_image == 'after_renorm':
+    #         # same as before but normalize it to 28.7, which is empirically same as text penultimate feature norm.
+    #         return image_embedding*28.7
+    #     elif self.which_layer_image == 'after_reproject':
+    #         # Re-project the CLIP image feature into text penultimate space using text linear matrix and norm it into 28.7
+    #         image_embedding = project( image_embedding.unsqueeze(0), self.projection_matrix.T )
+    #         image_embedding = image_embedding.squeeze(0)
+    #         image_embedding = image_embedding / image_embedding.norm() 
+    #         image_embedding = image_embedding * 28.7 
+    #         return image_embedding
 
     def vis_getitem_data(self, out=None, return_tensor=False, name="res.jpg", print_caption=True):
 

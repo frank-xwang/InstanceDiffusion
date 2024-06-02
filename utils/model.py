@@ -117,36 +117,36 @@ def alpha_generator(length, type=None):
     return alphas
 
 
-def project(x, projection_matrix):
-    """
-    x (Batch*768) should be the penultimate feature of CLIP (before projection)
-    projection_matrix (768*768) is the CLIP projection matrix, which should be weight.data of Linear layer 
-    defined in CLIP (out_dim, in_dim), thus we need to apply transpose below.  
-    this function will return the CLIP feature (without normalziation)
-    """
-    return x@torch.transpose(projection_matrix, 0, 1)
+# def project(x, projection_matrix):
+#     """
+#     x (Batch*768) should be the penultimate feature of CLIP (before projection)
+#     projection_matrix (768*768) is the CLIP projection matrix, which should be weight.data of Linear layer 
+#     defined in CLIP (out_dim, in_dim), thus we need to apply transpose below.  
+#     this function will return the CLIP feature (without normalziation)
+#     """
+#     return x@torch.transpose(projection_matrix, 0, 1)
 
 
 def get_clip_feature(model, processor, input, is_image=False):
-    if is_image:
-        if input == None:
-            return None
-        image = Image.open(input).convert("RGB")
-        inputs = processor(images=[image],  return_tensors="pt", padding=True)
-        inputs['pixel_values'] = inputs['pixel_values'].cuda()
-        inputs['input_ids'] = torch.tensor([[0,1,2,3]]).cuda() # placeholder
-        outputs = model(**inputs)
-        feature = outputs.image_embeds 
-        feature = project( feature, torch.load('projection_matrix').cuda().T ).squeeze(0)
-        feature = ( feature / feature.norm() )  * 28.7 
-        feature = feature.unsqueeze(0)
-    else:
-        if input == None:
-            return None
-        inputs = processor(text=input,  return_tensors="pt", padding=True)
-        inputs['input_ids'] = inputs['input_ids'].cuda()
-        inputs['pixel_values'] = torch.ones(1,3,224,224).cuda() # placeholder 
-        inputs['attention_mask'] = inputs['attention_mask'].cuda()
-        outputs = model(**inputs)
-        feature = outputs.text_model_output.pooler_output
+    # if is_image:
+    #     if input == None:
+    #         return None
+    #     image = Image.open(input).convert("RGB")
+    #     inputs = processor(images=[image],  return_tensors="pt", padding=True)
+    #     inputs['pixel_values'] = inputs['pixel_values'].cuda()
+    #     inputs['input_ids'] = torch.tensor([[0,1,2,3]]).cuda() # placeholder
+    #     outputs = model(**inputs)
+    #     feature = outputs.image_embeds 
+    #     feature = project( feature, torch.load('projection_matrix').cuda().T ).squeeze(0)
+    #     feature = ( feature / feature.norm() )  * 28.7 
+    #     feature = feature.unsqueeze(0)
+    # else:
+    if input == None:
+        return None
+    inputs = processor(text=input,  return_tensors="pt", padding=True)
+    inputs['input_ids'] = inputs['input_ids'].cuda()
+    inputs['pixel_values'] = torch.ones(1,3,224,224).cuda() # placeholder 
+    inputs['attention_mask'] = inputs['attention_mask'].cuda()
+    outputs = model(**inputs)
+    feature = outputs.text_model_output.pooler_output
     return feature
