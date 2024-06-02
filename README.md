@@ -85,7 +85,7 @@ The SDXL refiner is activated if the `cascade_strength` is larger than 0. Note: 
 
 Our implementation supports Flash/Math/MemEfficient attention, utilizing PyTorch's `torch.backends.cuda.sdp_kernel`. To disable it, simply set `efficient_attention: False` in the configuration `.yaml` file.
 
-The bounding box should follow the format [xmin, ymin, width, height]. The mask is expected in RLE (Run-Length Encoding) format. Scribbles should be specified as [[x1, y1],..., [x20, y20]] and can have duplicated points, and a point is denoted by [x, y].
+The bounding box should follow the format [xmin, ymin, width, height]. The mask is expected in RLE (Run-Length Encoding) format. Scribbles should be specified as [x1, y1,..., x20, y20] and can have duplicated points, and a point is denoted by [x, y].
 
 
 
