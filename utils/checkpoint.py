@@ -222,7 +222,7 @@ def synchronize():
     dist.barrier()
 
 def load_model_ckpt(ckpt_path, args, device):
-    saved_ckpt = torch.load(ckpt_path)
+    saved_ckpt = torch.load(ckpt_path, map_location='cpu')
     if hasattr(args, 'test_config') and args.test_config != "":
         config = OmegaConf.load(args.test_config) 
         config = vars(config)["_content"]
