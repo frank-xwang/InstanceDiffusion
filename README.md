@@ -19,6 +19,7 @@ This repository represents a re-implementation of InstanceDiffusion conducted by
 
 
 ## Updates
+* 01/01/2025 - InstanceDiffusion has benn ported to the diffusers library (thanks to Kyeongryeol Go)! Please refer to the [model card](https://huggingface.co/kyeongry/instancediffusion_sd15) for details. 
 * 02/25/2024 - InstanceDiffusion is ported into [ComfyUI](#third-party-implementations). Check out some cool [video demos](#third-party-implementations)! (thanks to Tucker Darby) 
 * 02/21/2024 - Support flash attention, memory usage can be reduced by more than half.
 * 02/19/2024 - Add PiM evaluation for scribble-/point-based image generation
@@ -62,7 +63,60 @@ We add our proposed learnable UniFusion blocks to handle the additional per-inst
 Please check our [paper](https://arxiv.org/abs/2402.03290) and [project page](http://people.eecs.berkeley.edu/~xdwang/projects/InstDiff/) for more details.
 
 
-## InstanceDiffusion Inference Demons
+## InstanceDiffusion Inference Demons (w/ Diffusers)
+InstanceDiffusion has benn ported to the diffusers library (thanks to [Kyeongryeol Go](https://github.com/gokyeongryeol))! You can simply use the following commands to run InstanceDiffusion locally. 
+Please refer to the [model card](https://huggingface.co/kyeongry/instancediffusion_sd15) for more details.  
+
+### Install
+```
+git clone -b instancediffusion https://github.com/gokyeongryeol/diffusers.git
+cd diffusers & pip install -e .
+```
+
+### Example Usage
+```python
+import torch
+from diffusers import StableDiffusionINSTDIFFPipeline
+
+pipe = StableDiffusionINSTDIFFPipeline.from_pretrained(
+    "kyeongry/instancediffusion_sd15",
+    # variant="fp16", torch_dtype=torch.float16,
+)
+pipe = pipe.to("cuda")
+
+prompt = "a yellow American robin, brown Maltipoo dog, a gray British Shorthair in a stream, alongside with trees and rocks"
+negative_prompt = "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality"
+
+# normalized (xmin,ymin,xmax,ymax)
+boxes = [
+    [0.0, 0.099609375, 0.349609375, 0.548828125],
+    [0.349609375, 0.19921875, 0.6484375, 0.498046875],
+    [0.6484375, 0.19921875, 0.998046875, 0.697265625],
+    [0.0, 0.69921875, 1.0, 0.998046875],
+]
+phrases = [
+    "a gray British Shorthair standing on a rock in the woods",
+    "a yellow American robin standing on the rock",
+    "a brown Maltipoo dog standing on the rock",
+    "a close up of a small waterfall in the woods",
+]     
+
+image = pipe(
+    prompt=prompt,
+    negative_prompt=negative_prompt,
+    instdiff_phrases=phrases,
+    instdiff_boxes=boxes,
+    instdiff_scheduled_sampling_alpha=0.8,  # proportion of using gated-self-attention
+    instdiff_scheduled_sampling_beta=0.36,  # proportion of using multi-instance sampler
+    guidance_scale=7.5,
+    output_type="pil",
+    num_inference_steps=50,
+).images[0]
+
+image.save("./instancediffusion-sd15-layout2image-generation.jpg")
+```
+
+## InstanceDiffusion Inference Demons (w/ CLI)
 If you want to run InstanceDiffusion demos locally, we provide `inference.py`. Please download the pretrained InstanceDiffusion from [Hugging Face](https://huggingface.co/xudongw/InstanceDiffusion/tree/main) or [Google Drive](https://drive.google.com/drive/folders/1Jm3bsBmq5sHBnaN5DemRUqNR0d4cVzqG?usp=sharing) and [SD1.5](https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.ckpt), place them under `pretrained` folder and then run it with:
 ```
 python inference.py \
