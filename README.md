@@ -6,7 +6,7 @@ Compared to the previous SOTA, InstanceDiffusion achieves **2.0 times** higher A
 <p align="center"> <img src='docs/teaser.jpg' align="center" > </p>
 
 > [**InstanceDiffusion: Instance-level Control for Image Generation**](http://people.eecs.berkeley.edu/~xdwang/projects/InstDiff/)            
-> [Xudong Wang](https://people.eecs.berkeley.edu/~xdwang/), [Trevor Darrell](https://people.eecs.berkeley.edu/~trevor/), [Saketh Rambhatla](https://rssaketh.github.io/), 
+> [XuDong Wang](https://people.eecs.berkeley.edu/~xdwang/), [Trevor Darrell](https://people.eecs.berkeley.edu/~trevor/), [Saketh Rambhatla](https://rssaketh.github.io/), 
 [Rohit Girdhar](https://rohitgirdhar.github.io/), [Ishan Misra](https://imisra.github.io/)     
 > GenAI, Meta; BAIR, UC Berkeley            
 > CVPR 2024             
@@ -19,7 +19,7 @@ This repository represents a re-implementation of InstanceDiffusion conducted by
 
 
 ## Updates
-* 01/01/2025 - InstanceDiffusion has benn ported to the diffusers library (thanks to Kyeongryeol Go)! Please refer to the [model card](https://huggingface.co/kyeongry/instancediffusion_sd15) for details. 
+* 01/01/2025 - InstanceDiffusion has been ported to the diffusers library (thanks to Kyeongryeol Go)! Please refer to the [model card](https://huggingface.co/kyeongry/instancediffusion_sd15) for details and the [pull request](https://github.com/huggingface/diffusers/pull/10079) for details. 
 * 02/25/2024 - InstanceDiffusion is ported into [ComfyUI](#third-party-implementations). Check out some cool [video demos](#third-party-implementations)! (thanks to Tucker Darby) 
 * 02/21/2024 - Support flash attention, memory usage can be reduced by more than half.
 * 02/19/2024 - Add PiM evaluation for scribble-/point-based image generation
