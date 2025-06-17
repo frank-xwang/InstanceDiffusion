@@ -223,7 +223,7 @@ coco/
       ...
 ```
 
-Please download the customized [instances_val2017.json](https://drive.google.com/file/d/1sYpb7jRZJyBJYPFHyjxosIDaiQhkrEhU/view?usp=drive_link), which resizes all images to 512x512 and adjusts the corresponding masks/boxes accordingly. Once you have organized the data, proceed with executing the following commands:
+Please download the customized [instances_val2017.json](https://drive.google.com/file/d/1zRANVAVC7qRZ0Y6tucwRRFicQ_34AmWJ/view?usp=sharing), which resizes all images to 512x512 and adjusts the corresponding masks/boxes accordingly. Once you have organized the data, proceed with executing the following commands:
 
 ```
 CUDA_VISIBLE_DEVICES=0 python eval_local.py \
